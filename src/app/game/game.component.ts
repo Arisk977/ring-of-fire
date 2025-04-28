@@ -9,15 +9,17 @@ import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { GameInfoComponent } from '../game-info/game-info.component';
 
 @Component({
   selector: 'app-game',
   standalone: true,
   imports: [CommonModule, PlayerComponent, MatButtonModule, MatIconModule, MatDialogModule,
-     MatFormFieldModule, FormsModule],
+     MatFormFieldModule, FormsModule, GameInfoComponent],
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
 })
+
 export class GameComponent implements OnInit {
   pickCardAnimation = false;
   currentCard: string | undefined= '';
@@ -34,12 +36,10 @@ export class GameComponent implements OnInit {
     if(!this.pickCardAnimation){
       
     this.currentCard = this.game.stack.pop();
-    this.pickCardAnimation = true;
-
-    console.log('game is: ', this.game);
-    console.log('new card: ' + this.currentCard);
+    this.pickCardAnimation = true;    
     
-    
+    this.game.currentPlayer++;
+    this.game.currentPlayer = this.game.currentPlayer % this.game.players.length;
 
     setTimeout(() => {    
       if(this.currentCard){this.game.playedCards.push(this.currentCard);}
@@ -56,8 +56,10 @@ export class GameComponent implements OnInit {
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogAddPlayerComponent);
 
-    dialogRef.afterClosed().subscribe(() => {
-      console.log('The dialog was closed');
+   
+    dialogRef.afterClosed().subscribe((result:string) => {
+      if(result && result.length > 0){
+      this.game.players.push(result);}
     });
   }
 
