@@ -1,15 +1,16 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { CommonModule} from '@angular/common';
+import { Component, OnInit, inject} from '@angular/core';
 import { Game } from '../../models/game';
 import { PlayerComponent } from '../player/player.component';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {MatDialogModule} from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { GameInfoComponent } from '../game-info/game-info.component';
+import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-game',
@@ -21,16 +22,23 @@ import { GameInfoComponent } from '../game-info/game-info.component';
 })
 
 export class GameComponent implements OnInit {
+  firestore: Firestore = inject(Firestore);
   pickCardAnimation = false;
   currentCard: string | undefined= '';
   game!: Game;
+  items$: Observable<any[]>;
 
   constructor(public dialog: MatDialog){
-
+    const FIREBASE_COLLECTION = collection(this.firestore, 'games');
+    this.items$ = collectionData(FIREBASE_COLLECTION);
+    console.log(this.items$);
+    
   }
 
   ngOnInit(): void {
     this.newGame();
+
+
   }
   takeCard() {
     if(!this.pickCardAnimation){
