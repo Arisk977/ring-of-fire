@@ -9,7 +9,7 @@ import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { GameInfoComponent } from '../game-info/game-info.component';
-import { Firestore, collection, collectionData } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -29,17 +29,24 @@ export class GameComponent implements OnInit {
   items$: Observable<any[]>;
 
   constructor(public dialog: MatDialog){
-    const FIREBASE_COLLECTION = collection(this.firestore, 'games');
+    const FIREBASE_COLLECTION = collection(this.firestore, 'games')
     this.items$ = collectionData(FIREBASE_COLLECTION);
-    console.log(this.items$);
-    
+
   }
 
   ngOnInit(): void {
     this.newGame();
-
+    this.addGameToFirestore(); 
+    this.items$.subscribe((games) => {
+      console.log('Game Update', games);})
 
   }
+
+  async addGameToFirestore() {
+    const gamesCollection = collection(this.firestore, 'games');
+    await addDoc(gamesCollection, this.game.toJson());
+  }  
+
   takeCard() {
     if(!this.pickCardAnimation){
       
